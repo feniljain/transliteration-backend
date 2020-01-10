@@ -37,6 +37,10 @@ const db=knex({
     // port: 5432
   });
 
+app.get("/", (req, res)=>{
+    res.send("Namastey Duniyaa!");
+});
+
 app.get("/test",(req, resp)=>{
     console.log(req);
     resp.json(
