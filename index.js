@@ -26,7 +26,7 @@ const db=knex({
     //   user : 'postgres',
     //   password : '1234',
     //   database : 'onefourthlabstask'
-    connectString: process.env.DATABASE_URL,
+    connectionString: process.env.DATABASE_URL,
     ssl: true
     }
   });
