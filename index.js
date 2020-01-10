@@ -31,13 +31,13 @@ const db=knex({
     }
   });
 
-  const client = new Pool({
-    host: "127.0.0.1",
-    user: "postgres",
-    database: "onefourthlabstask",
-    password: "1234",
-    // port: 5432
-  });
+//   const client = new Pool({
+//     host: "127.0.0.1",
+//     user: "postgres",
+//     database: "onefourthlabstask",
+//     password: "1234",
+//     // port: 5432
+//   });
 
 app.get("/", (req, res)=>{
     res.send("Namastey Duniyaa!");
