@@ -167,7 +167,7 @@ app.post("/download", async (req, resp) =>{
     });
 });
 
-app.listen(process.env.port || 8010, (err)=>{
+app.listen(process.env.PORT || 8010, (err)=>{
     if(!err){
         console.log("Listening on port 8010");
     }
