@@ -61,12 +61,12 @@ app.post("/insert", (req1, res)=>{
     var {input, transliteration, lang}=req1.body;
     console.log(req1.body);
     console.log(input);
-    if(input===undefined)
+    if(input===undefined || input==='')
      {
         res.json({
             "success": false,
             "meta": {
-                "message": "Body is empty"
+                "message": "Empty fields are not accepted!"
             }
         });
         return;
@@ -110,7 +110,6 @@ app.get("/download", async (req, resp) =>{
     console.log(req.url.split("?")[1].split("=")[0]);
     console.log(req.url.split("?")[1].split("=")[1]);
     lang=req.url.split("?")[1].split("=")[1];
-
     // console.log(req.data);
     // const {lang}=req.data;
     // console.log(lang);
