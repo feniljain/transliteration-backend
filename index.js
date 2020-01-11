@@ -1,22 +1,29 @@
 const express=require('express');
 const app=express();
 const bodyParser=require('body-parser');
-const fetch=require("node-fetch");
+// const fetch=require("node-fetch");
 const knex=require('knex');
 // const knex1=require('knex')('config');
 const cors=require('cors');
 const fastcsv = require("fast-csv");
 const fs = require("fs");
-const Pool = require("pg").Pool;
+// const Pool = require("pg").Pool;
 const { Parser } = require('json2csv');
 // var copyFrom = require('pg-copy-streams').from;
 // const pg=require('pg');
 // const client=new pg.Client();
 // const copyTo = require('pg-copy-streams').to
 
-
+// app.use(function(req, res, next) { res.header("Access-Control-Allow-Origin", "*"); res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept"); next(); });
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
+// app.use((req, res, next)=>{
+//     // console.log(req);
+//     console.log("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
+//     // console.log(bodyParser.json(req).body);
+//     console.log(req.body);
+//     next();
+// });
 app.use(cors());
 
 const db=knex({
@@ -50,22 +57,33 @@ app.get("/test",(req, resp)=>{
     );
 });
 
-app.post("/insert", (req, resp)=>{
-    var {input, transliteration, lang}=req.body;
-    console.log(req.body);
+app.post("/insert", (req1, res)=>{
+    var {input, transliteration, lang}=req1.body;
+    console.log(req1.body);
+    console.log(input);
+    if(input===undefined)
+     {
+        res.json({
+            "success": false,
+            "meta": {
+                "message": "Body is empty"
+            }
+        });
+        return;
+     }
     db('transliterate')
     .insert({
         "input": input,
         "transliteration": transliteration,
         "lang": lang
     }).then((data)=>{
-        console.log(data);
-        resp.json({
+        // console.log(data);
+        res.json({
             "success": true
         });
     }).catch((err)=>{
         console.log(err);
-        resp.json({
+        res.json({
             "success": false,
             "meta": {
                 "message": err["detail"]
@@ -77,8 +95,26 @@ app.post("/insert", (req, resp)=>{
     // );
 });
 
-app.post("/download", async (req, resp) =>{
-    const {lang}=req.body;
+const sendingResponse=(resp)=>{
+    console.log("Sending Response!");
+    const file = `${__dirname}/sample_table.csv`;
+    // resp.download('./sample_table.csv');
+    resp.download(file);
+}
+
+app.get("/download", async (req, resp) =>{
+    // console.log(req);
+    // console.log(req.body);
+    // const {lang}=req.body;
+    // console.log(lang);
+    console.log(req.url.split("?")[1].split("=")[0]);
+    console.log(req.url.split("?")[1].split("=")[1]);
+    lang=req.url.split("?")[1].split("=")[1];
+
+    // console.log(req.data);
+    // const {lang}=req.data;
+    // console.log(lang);
+
     // knex.schema.raw('COPY transliterate TO "home/Projects/Web Projects/TaskOneFourthLabs/taskonefourthlabsbackend" DELIMITER "," CSV HEADER;')
     // .then((data)=>{
     //     console.log(data);
@@ -112,15 +148,71 @@ app.post("/download", async (req, resp) =>{
     // })
     console.log("<-------------------------------------------------------------------->");
     var jsonData;
-    db
-    .select('*')
-    .from('transliterate')
-    .where('lang', '=', lang)
-    .then(async (data)=>{
-        console.log(data);
-        jsonData=data;
+    // new Promise(async (resolve, reject)=>{
+        var flag=0;
+        db
+        .select('*')
+        .from('transliterate')
+        .where('lang', '=', lang)
+        .then(async (data)=>{
+            console.log(data);
+            jsonData=data;
+            const ws = fs.createWriteStream("sample_table.csv");
+            await fastcsv
+            .write(jsonData, { headers: true })
+            .on("finish", function() {
+                console.log("Postgres table transliterate exported to CSV file successfully.");
+                flag=1;
+                return true;
+            })
+            .pipe(ws);
+            console.log("Printintg WS");
+            // console.log(ws);
+            // await sendingResponse(resp);
+        }).then((data)=>{
+            console.log("data:"+flag);
+            if(flag===1)
+             {
+                sendingResponse(resp);
+             }
+        }).catch((err)=>{
+            console.log(err);
+            resp.send({
+                "sucess": false,
+                "meta": {
+                    "message": err["detail"]
+                }
+            });
+        });
+    // })
+});
 
-        // const fields=['input', 'transliteration', 'lang'];
+app.get("/get", (req, resp)=>{
+    console.log("<!-----------Inside GET----------------!>");
+    console.log(req.url.split("?")[1].split("="));//.split("=")[1]
+    // console.log(req.url.split("?").split("=")[2]);
+    // var url=new URL(req.url);
+    // var c=url.searchParams.get("");
+});
+
+app.listen(process.env.PORT || 8010, (err)=>{
+    if(!err){
+        if(process.env.PORT) 
+        {
+            console.log(`Listening on port: ${process.env.PORT}`);
+        }
+        else
+        {
+            console.log("Listening on port 8010");
+        }
+        
+    }
+    else{
+        console.log("Error launching the server!");
+    }
+});
+
+// const fields=['input', 'transliteration', 'lang'];
         // const opts={fields};
         // try{
         //     "input": input,
@@ -134,15 +226,8 @@ app.post("/download", async (req, resp) =>{
         // catch(err){
         //     console.log(err);
         // }
-        const ws = fs.createWriteStream("sample_table.csv");
-        await fastcsv
-        .write(jsonData, { headers: true })
-        .on("finish", function() {
-            console.log("Postgres table transliterate exported to CSV file successfully.");
-        })
-        .pipe(ws);     
-        console.log(ws);
-        // try{
+
+// try{
         // //    for()
         // //     {
         // //     }
@@ -154,26 +239,6 @@ app.post("/download", async (req, resp) =>{
         // catch(err){
         //     console.log("Error!");
         // }
-        await resp.download('./sample_table.csv');
         // .then((data)=>{
         //     console.log(data);
         // });
-    }).catch((err)=>{
-        console.log(err);
-        resp.send({
-            "sucess": false,
-            "meta": {
-                "message": err["detail"]
-            }
-        });
-    });
-});
-
-app.listen(process.env.PORT || 8010, (err)=>{
-    if(!err){
-        console.log("Listening on port 8010");
-    }
-    else{
-        console.log("Error launching the server!");
-    }
-});
