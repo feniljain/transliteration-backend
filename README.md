@@ -10,9 +10,9 @@ After the installation is completed, enter "npm start". The backend will start l
 
 ### GET
 
-"/": Returns "Namastey Duniyaa!", just for testing the activeness of backend.
-"/download": Route to accept the language in the request url and convert it into csv using json2csv.
-"/download1": Route to accept the language in the request url and convert it into csv using fastcsv.
+"/": Returns "Namastey Duniyaa!", just for testing the activeness of backend.<br />
+"/download": Route to accept the language in the request url and convert it into csv using json2csv.<br />
+"/download1": Route to accept the language in the request url and convert it into csv using fastcsv.<br />
 
 ### POST
 
