@@ -109,7 +109,7 @@ const sendingResponse = (resp) => {
     resp.download(file);
 }
 
-app.get("/download1", async (req, resp) => {
+app.get("/download", async (req, resp) => {
     // console.log(req.url.split("?")[1].split("=")[0]);
     // console.log(req.url.split("?")[1].split("=")[1]);
     lang = req.url.split("?")[1].split("=")[1];
@@ -141,7 +141,7 @@ app.get("/download1", async (req, resp) => {
     });
 });
 
-app.get("/download", async (req, resp) => {
+app.get("/download1", async (req, resp) => {
     // console.log(req);
     // console.log(req.body);
     // const {lang}=req.body;
